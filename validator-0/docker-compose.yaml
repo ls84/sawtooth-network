@@ -1,0 +1,55 @@
+version: "2.1"
+services:
+  validator-0:
+    image: hyperledger/sawtooth-validator:1.0
+    container_name: validator-0
+    expose:
+      - 4004
+      - 8800
+    volumes:
+      - ./settings:/settings
+    entrypoint: "bash -c \"\
+      sawadm keygen --force && \
+      sawset genesis -k /etc/sawtooth/keys/validator.priv -o genesis.batch && \
+      sawadm genesis genesis.batch && \
+      cp /settings/validator.toml /etc/sawtooth/validator.toml && \
+      sawtooth-validator -vv \
+    \""
+    networks:
+      - sawtooth
+
+  settings-tp-0:
+    image: hyperledger/sawtooth-settings-tp:1.0
+    container_name: settings-tp-0
+    depends_on:
+      - validator-0
+    entrypoint: settings-tp -vv -C tcp://validator-0:4004
+    networks:
+      - sawtooth
+
+  rest-api-0:
+    image: hyperledger/sawtooth-rest-api:1.0
+    container_name: rest-api-0
+    expose:
+      - 8008
+    entrypoint: sawtooth-rest-api -C tcp://validator-0:4004 --bind rest-api-0:8008
+    depends_on:
+      - validator-0
+    networks:
+      - sawtooth
+
+  shell-0:
+    image: hyperledger/sawtooth-all:1.0
+    container_name: shell-0
+    depends_on:
+      - rest-api-0
+    entrypoint: "bash -c \"\
+        sawtooth keygen && \
+        tail -f /dev/null \
+        \""
+    networks:
+      - sawtooth
+
+networks:
+  sawtooth:
+    name: sawtooth

@@ -1,0 +1,12 @@
+bind = [
+  "network:tcp://eth0:8800",
+  "component:tcp://eth0:4004"
+]
+
+peering = "dynamic"
+
+endpoint = "tcp://validator-2:8800"
+
+seeds = ["tcp://validator-0:8800"]
+
+scheduler = "serial"
