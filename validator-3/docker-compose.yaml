@@ -25,6 +25,15 @@ services:
     networks:
       - sawtooth
 
+  poet-registry-tp-3:
+    image: hyperledger/sawtooth-poet-validator-registry-tp:1.0
+    container_name: poet-registry-tp-3
+    expose:
+      - 4004
+    command: poet-validator-registry-tp -C tcp://validator-3:4004
+    networks:
+      - sawtooth
+
   rest-api-3:
     image: hyperledger/sawtooth-rest-api:1.0
     container_name: rest-api-3

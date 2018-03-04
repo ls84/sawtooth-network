@@ -8,3 +8,5 @@ peering = "dynamic"
 endpoint = "tcp://validator-0:8800"
 
 scheduler = "parallel"
+
+minimum_peer_connectivity = 1

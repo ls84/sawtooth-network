@@ -10,8 +10,18 @@ services:
       - ./settings:/settings
     entrypoint: "bash -c \"\
       sawadm keygen --force && \
-      sawset genesis -k /etc/sawtooth/keys/validator.priv -o genesis.batch && \
-      sawadm genesis genesis.batch && \
+      sawset genesis -k /etc/sawtooth/keys/validator.priv -o config-genesis.batch && \
+      sawset proposal create \
+      -k /etc/sawtooth/keys/validator.priv \
+      sawtooth.consensus.algorithm=poet \
+      sawtooth.poet.report_public_key_pem=\
+      \\\"$$(cat /settings/simulator_rk_pub.pem)\\\" \
+      sawtooth.poet.valid_enclave_measurements=$$(poet enclave measurement) \
+      sawtooth.poet.valid_enclave_basenames=$$(poet enclave basename) \
+      -o config.batch && \
+      poet registration create -o poet.batch && \
+      sawadm genesis \
+      config-genesis.batch config.batch poet.batch && \
       cp /settings/validator.toml /etc/sawtooth/validator.toml && \
       sawtooth-validator -vv \
     \""
@@ -24,6 +34,15 @@ services:
     depends_on:
       - validator-0
     entrypoint: settings-tp -vv -C tcp://validator-0:4004
+    networks:
+      - sawtooth
+
+  poet-registry-tp-0:
+    image: hyperledger/sawtooth-poet-validator-registry-tp:1.0
+    container_name: poet-registry-tp-0
+    expose:
+      - 4004
+    command: poet-validator-registry-tp -C tcp://validator-0:4004
     networks:
       - sawtooth
 

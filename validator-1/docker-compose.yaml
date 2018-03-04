@@ -23,6 +23,15 @@ services:
       - validator-1
     entrypoint: settings-tp -vv -C tcp://validator-1:4004
     networks:
+     - sawtooth
+
+  poet-registry-tp-1:
+    image: hyperledger/sawtooth-poet-validator-registry-tp:1.0
+    container_name: poet-registry-tp-1
+    expose:
+      - 4004
+    command: poet-validator-registry-tp -C tcp://validator-1:4004
+    networks:
       - sawtooth
 
   rest-api-1:

@@ -10,3 +10,5 @@ endpoint = "tcp://validator-3:8800"
 seeds = ["tcp://validator-0:8800"]
 
 scheduler = "parallel"
+
+minimum_peer_connectivity = 1
